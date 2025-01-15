@@ -1,0 +1,378 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// struct company: used to store company information
+struct company {
+    char name[33]; // stores the company name. Company name is a string with a maximum of 32 characters.
+    int state; // stores the company state. Company state is a string input of 2 characters, stored as an integer, and displayed as 2-character state abbreviation.
+};
+
+// struct shipment: used to store shipment information
+struct shipment {
+    int number; // stores the shipment number
+    char shipmentnumber[10]; // stores the shipment number as a string
+    char date[11]; // Shipment date is a string input as mm-dd-yyyy. Input and stored as a string.
+    double cost; // Shipment cost in US is a decimal number from 0 to $9,999,999,999,999.99.
+};
+
+// struct egg: used to store egg information
+struct egg {
+    char grade[3]; // Egg grade is a string “AA”, “A”, or “B”.
+    int size; // Egg size is a string “Small”, “Medium”, “Large”, “Extra-Large”, or “Jumbo” input and stored as an integer.
+    char size_str[10]; // Egg size is a string “Small”, “Medium”, “Large”, “Extra-Large”, or “Jumbo” input and stored as a string.
+    double cost; // Individual Egg Cost is a decimal point number from $0.01 to $999,999.99.
+};
+
+// state_abbreviations: array of state abbreviations
+const char *state_abbreviations[50] = {"AL",
+"AK", "AZ", "AR", "CA", "CO", "CT", "DE",
+"FL", "GA", "HI", "ID", "IL", "IN", "IA",
+"KS", "KY", "LA", "ME", "MD", "MA", "MI",
+"MN", "MS", "MO", "MT", "NE", "NV", "NH",
+"NJ", "NM", "NY", "NC", "ND", "OH", "OK",
+"OR", "PA", "RI", "SC", "SD", "TN", "TX",
+"UT", "VT", "VA", "WA", "WV", "WI", "WY"};
+
+// state_fullnames: array of state full names
+const char *state_fullnames[50] = {"Alabama",
+"Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+"Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+"Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
+"Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+"New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+"Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas",
+"Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"};
+
+// getCompanyData: function to enter company information
+void getCompanyData(struct company *company1) { // Function to enter company information
+
+    char stateletter[1]; // First letter of state abbreviation
+    int matchedstate = 0; // integer for detecting states based off stateletter[1]
+    char abbreviation[2]; // State abbreviation
+
+    printf("Enter Company Name (Maximum 32 Characters): "); // Prompt for company name
+    fgets(company1->name, 33, stdin); // Scan for company name
+    company1->name[strcspn(company1->name, "\n")] = 0; // Remove newline character from company name
+
+    while(matchedstate == 0) { // Loop until a state is matched
+        
+        bool error = false; // Boolean for error checking
+
+        matchedstate = 0; // Reset matchedstate
+        printf("\nEnter the first letter of the state: "); // Prompt for first letter of state abbreviation
+        stateletter[0] = getchar(); // Scan for first letter of state abbreviation
+        while (getchar() != '\n') { // Clear input buffer
+            error = true; 
+        }
+        if (error) { // if there is more than one letter, it will not work
+            printf("Please enter only one letter.\n");
+            continue;
+        }
+
+        printf("\n"); // Print newline
+
+        // convert the letter to uppercase
+        if (stateletter[0] >= 'a' && stateletter[0] <= 'z') {
+            stateletter[0] -= 32;
+        }
+
+        // check if the letter is a letter
+        if (stateletter[0] >= 'A' && stateletter[0] <= 'Z') { // Check if input is a letter
+            matchedstate = 1;
+        }
+        else {
+            printf("Please enter a letter.\n");
+        }
+
+        // check if the letter is a state
+        for (int i = 0; i < 50; i++) { // Print all states that start with the first letter of the state abbreviation
+            if (stateletter[0] == state_abbreviations[i][0]) { // Matches first letter of input with any state abbreviation
+                printf("%s\n", state_abbreviations[i]);
+                matchedstate = 1;
+            }
+        }
+        if (matchedstate == 0) { // If no states are found, print error message
+            printf("No states found with that letter. Please try again.\n");
+        }
+    }
+    // get the state abbreviation
+    printf("\nEnter the state abbreviation: "); // Prompt for state abbreviation
+    scanf("%s", abbreviation); // Scan for state abbreviation    
+    while (strlen(abbreviation) > 2) { // If the state abbreviation is more than two letters, print error message and prompt for state abbreviation again
+        printf("More than two letters entered. Please enter the state abbreviation: ");
+        scanf("%s", abbreviation);
+    }
+
+
+
+    if (abbreviation[0] >= 'a' && abbreviation[0] <= 'z') { // convert the letter to uppercase
+        abbreviation[0] -= 32; // convert first letter to uppercase
+        abbreviation[1] -= 32; // convert second letter to uppercase
+    }
+
+    for (int i = 0; i < 50; i++) { // Check if the state abbreviation is valid
+        if (strcmp(abbreviation, state_abbreviations[i]) == 0) { // If the state abbreviation is valid, store the index of the state abbreviation in the state_abbreviations array
+            company1->state = i; // Store the index of the state abbreviation in the state_abbreviations array
+            break;
+        }
+    }
+
+    }
+
+// getShipmentData: function to enter shipment information
+void getShipmentData(struct shipment *shipment1) {
+
+    do {
+        printf("Enter the shipment number (1-999999999): "); // Prompt for shipment number
+        scanf("%s", shipment1->shipmentnumber); // Scan for shipment number
+        shipment1->number = atoi(shipment1->shipmentnumber); // Convert the shipment number to an integer using atoi
+
+        if (shipment1->number < 1 || shipment1->number > 999999999) { // If the shipment number is between 1 and 999999999, break the loop
+            printf("Invalid shipment number. "); // If the shipment number is not between 1 and 999999999, print error message and prompt for shipment number again
+        }
+    } while (shipment1->number < 1 || shipment1->number > 999999999);
+    
+
+    // get the shipment date
+    printf("Enter the shipment date (mm-dd-yyyy): "); // Prompt for shipment date
+    scanf("%s", shipment1->date); // Scan for shipment date 
+
+    if (strlen(shipment1->date) != 10) { // If the shipment date is not 10 characters long, print error message and prompt for shipment date again
+        printf("Invalid shipment date. Enter the shipment date (mm-dd-yyyy): "); // If the shipment date is not 10 characters long, print error message and prompt for shipment date again
+        scanf("%s", shipment1->date);
+    }
+    else { 
+        for (int i = 0; i < 10; i++) { // If the shipment date is 10 characters long, check if the first 2 characters are numbers, the third character is a dash, the next 2 characters are numbers, the sixth character is a dash, and the last 4 characters are numbers
+            if (i == 2 || i == 5) { // If the third or sixth character is a dash, continue
+                continue;
+            }
+            else if (shipment1->date[i] < '0' || shipment1->date[i] > '9') { // If the character is not a number, print error message and prompt for shipment date again
+                printf("Invalid shipment date. Enter the shipment date (mm-dd-yyyy): ");
+                scanf("%s", shipment1->date);
+                break;
+            }
+        }
+    }
+
+    // get the shipment cost
+    do {
+
+        printf("Enter the shipment cost: "); // Prompt for shipment cost
+        scanf("%lf", &shipment1->cost); // Scan for shipment cost
+        
+        if (shipment1->cost < 0 || shipment1->cost > 9999999999999.99) { // Error when shipment cost is less than 0
+            printf("Invalid shipment cost. ");
+        } 
+    } while (shipment1->cost < 0 || shipment1->cost > 9999999999999.99);
+}
+
+// getEggData: function to enter egg information
+void getEggData(struct egg *egg1) { // Function to get egg data
+
+    printf("Enter the egg grade (AA, A, or B): "); // Prompt for egg grade
+    scanf("%s", egg1->grade); // Scan for egg grade
+
+    //checking to see if the egg grade is valid
+    while (strcmp(egg1->grade, "AA") != 0 && strcmp(egg1->grade, "A") != 0 && strcmp(egg1->grade, "B") != 0) {
+        printf("Invalid egg grade. Please enter a valid egg grade (AA, A, or B): "); // Prompt for egg grade
+        scanf("%s", egg1->grade); // Scan for egg grade
+    }
+
+    bool valid = false; 
+
+    // store the egg size as a string
+    printf("Enter the egg size (Small, Medium, Large, Extra-Large, or Jumbo): "); // Prompt for egg size
+    scanf("%s", egg1->size_str); // Scan for egg size
+
+    do {
+
+        // store the egg size as an integer
+        if ((strcmp(egg1->size_str, "Small") == 0) || (strcmp(egg1->size_str, "small") == 0)) {
+            egg1->size = 1;
+            valid = true;
+        }
+        else if ((strcmp(egg1->size_str, "Medium") == 0) || (strcmp(egg1->size_str, "medium") == 0)) {
+            egg1->size = 2;
+            valid = true;
+        }
+        else if ((strcmp(egg1->size_str, "Large") == 0) || (strcmp(egg1->size_str, "large") == 0)) {
+            egg1->size = 3;
+            valid = true;
+        }
+        else if ((strcmp(egg1->size_str, "Extra-Large") == 0) || (strcmp(egg1->size_str, "extra-large") == 0)) {
+            egg1->size = 4;
+            valid = true;
+        }
+        else if ((strcmp(egg1->size_str, "Jumbo") == 0) || (strcmp(egg1->size_str, "jumbo") == 0)) {
+            egg1->size = 5;
+            valid = true;
+        }
+        else if (egg1->size != 1 && egg1->size != 2 && egg1->size != 3 && egg1->size != 4 && egg1->size != 5) {
+            printf("Invalid egg size. Enter the egg size (Small, Medium, Large, Extra-Large, or Jumbo): ");
+            scanf("%s", egg1->size_str);
+        }
+    } while (!valid);
+
+    // store the egg cost as a double
+    printf("Enter the egg cost ($0.01 to $999,999.99): "); // Prompt for egg cost
+    int result = scanf("%lf", &egg1->cost); // Scan for egg cost
+
+    // Error when egg cost is less than 0.01 or greater than 999999.99
+    while(result != 1 || egg1->cost < 0.01 || egg1->cost > 999999.99) { // Error when egg cost is less than 0.01 or greater than 999999.99
+        if(result != 1) {
+            printf("Invalid input. Please enter a number.\n");
+        } else {
+            printf("Invalid egg cost. ");
+        }
+        while(getchar() != '\n'); // Clear the input buffer
+        printf("Enter the egg cost ($0.01 to $999,999.99): "); // Prompt for egg cost
+        result = scanf("%lf", &egg1->cost); // Scan for egg cost
+    }
+}  
+
+// displayCompanyData: function to display company information
+void displaycompanyData(struct company *company) {
+    printf("Company Name: %s\n", company->name);
+    printf("Company State: %s\n", state_fullnames[company->state]);
+}
+
+// displayShipmentData: function to display shipment information
+void displayShipmentData(struct shipment *shipment1) {
+    printf("Shipment Number: %s\n", shipment1->shipmentnumber);
+    printf("Shipment Date: %s\n", shipment1->date);
+    printf("Shipment Cost: $%.2lf\n", shipment1->cost);
+}
+
+// displayEggData: function to display egg information
+void displayEggData(struct egg *egg1) {
+    printf("Egg Grade is: %s\n", egg1->grade);
+    printf("Egg Size is: %s\n", egg1->size_str);
+    printf("Egg Cost is: $%.2lf\n", egg1->cost);
+}
+
+int main() { // Main function
+
+    struct company company; // Company struct
+    struct shipment shipment1; // Shipment struct
+    struct egg egg1; // Egg struct
+
+    int menu_input = 0; // Variable to store user input
+
+    printf("Welcome to the Egg Database!\nSelect the number that corresponds to the data you want to enter:\n"); // Welcome message
+
+    while (menu_input != 4) { // While loop to display menu until user enters 4 to exit
+        printf(" 1 to enter company data\n"); // Prompt for company data
+        printf(" 2 to enter shipment data\n"); // Prompt for shipment data
+        printf(" 3 to enter egg data\n"); // Prompt for egg data
+//        printf(" 4 to enter all data\n"); // Prompt for all data
+        printf(" 4 to view data\n"); // Prompt to exit
+        printf("Enter your choice: "); // Prompt for user input
+        scanf("%d", &menu_input); // Scan for user input (1, 2, 3, 4, or 5)
+
+        // clear the input buffer after reading the menu choice
+        int c; // Variable to store user input
+        while ((c = getchar()) != '\n' && c != EOF); // While loop to clear input buffer
+
+        switch (menu_input) { // Switch statement to call functions based on user input
+            case 1: // Call function to get company data
+                getCompanyData(&company);
+                break;
+            case 2: // Call function to get shipment data
+                getShipmentData(&shipment1);
+                break;
+            case 3: // Call function to get egg data
+                getEggData(&egg1);
+                break;
+            case 4: // view data
+                break;
+            default: // Error if user input is not 1-5
+                printf("Invalid input. Please enter a number from 1 to 4.\n");
+        }
+
+        // Prompt user to enter more data
+        if (menu_input >= 1 && menu_input <= 3) { // Prompt for user input if user input is not 1-6
+            printf("Would you like to enter more data? (Y/N):"); 
+            char menu_answer;
+            while (getchar() != '\n');
+            scanf("%c", &menu_answer);
+            if (menu_answer == 'Y' || menu_answer == 'y') {
+                menu_input = 0;
+            }
+            else if (menu_answer == 'N' || menu_answer == 'n') {
+                menu_input = 5;
+            }
+            else {
+                printf("Invalid input. Please enter Y or N.\n");
+                scanf("%d", &menu_input); // Scan for user input
+                break;
+            }
+
+        }
+    }
+    
+
+    int user_input = 0; // Variable to store user input for menu
+
+    while (user_input != 6) { // While loop to display data based on user input
+        
+        printf("\nEnter the number that corresponds to the data you want to see:\n");
+        printf(" 1 to display company data\n"); // Display company data
+        printf(" 2 to display shipment data\n"); // Display shipment data
+        printf(" 3 to display egg data\n"); // Display egg data
+        printf(" 4 to see all data\n"); // Display all data
+        printf(" 5 to clear all data\n"); // Clear all data
+        printf(" 6 to exit\n"); // Exit program
+        printf("Enter your choice: ");
+        scanf("%d", &user_input); // Scan for user input
+
+        switch (user_input) { // Switch statement to display data based on user input
+            case 1:
+                printf("\nCompany Data: \n");
+                displaycompanyData(&company); // Call displaycompanyData function
+                break;
+            case 2:
+                printf("\nShipment Data: \n");
+                displayShipmentData(&shipment1); // Call displayShipmentData function
+                break;
+            case 3:
+                printf("\nEgg Data: \n");
+                displayEggData(&egg1); // Call displayEggData function
+                break;
+            case 4:
+                printf("\nAll Data: \n");
+                displaycompanyData(&company); // Call displaycompanyData function
+                displayShipmentData(&shipment1); // Call displayShipmentData function
+                displayEggData(&egg1); // Call displayEggData function
+                break;
+            case 5:
+                printf("Clearing all data...\n");
+                memset(&company, 0, sizeof(company)); // Clear company data
+                memset(&shipment1, 0, sizeof(shipment1)); // Clear shipment data
+                memset(&egg1, 0, sizeof(egg1)); // Clear egg data
+                break;
+            case 6:
+                printf("Exiting program...\n");
+                exit(0); // Exit program
+                break;
+            default:
+                printf("Invalid input. Enter 1-6: "); // Prompt for user input
+                scanf("%d", &user_input); // Scan for user input
+                break;
+        }
+
+        if (user_input >= 1 && user_input <= 4) { // Prompt for user input if user input is not 1-6
+            printf("Do you want to see more data? (Y/N): ");
+            char answer;
+            scanf(" %c", &answer); // Scan for user input
+            if (answer == 'N' || answer == 'n') { // Exit program if user input is N or n
+                printf("Exiting Database...\n");
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
